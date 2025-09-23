@@ -1,4 +1,4 @@
-aspace-export, v1.0.0b
+aspace-export, v1.0.1
 =============
 Command-line utility for bulk export, validation and reformatting of EAD finding aids and MARC records from Archivespace.
 
