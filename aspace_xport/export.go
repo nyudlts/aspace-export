@@ -126,9 +126,9 @@ func exportChunk(resourceInfoChunk []ResourceInfo, resultChannel chan []ExportRe
 		}
 
 		if exportOptions.Format == MARC {
-			results = append(results, exportMarc(rInfo, res, workerID))
+			results = append(results, exportMarc(rInfo, *res, workerID))
 		} else if exportOptions.Format == EAD {
-			results = append(results, exportEAD(rInfo, res, workerID))
+			results = append(results, exportEAD(rInfo, *res, workerID))
 		} else {
 			//there's an unsupported format, this shouldn't be possible
 		}

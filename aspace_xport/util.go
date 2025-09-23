@@ -20,7 +20,7 @@ var client *aspace.ASClient
 
 func CreateAspaceClient(config string, environment string, timeout int) error {
 	var err error
-	client, err = aspace.NewClient(config, environment, timeout)
+	client, err = aspace.NewClient(config, environment)
 	if err != nil {
 		return err
 	}
