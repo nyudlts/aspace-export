@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/nyudlts/aspace-export/aspace_xport"
 	export "github.com/nyudlts/aspace-export/aspace_xport"
 	"github.com/nyudlts/go-aspace"
 )
 
-const appVersion = "v1.1.1"
+const appVersion = "v1.1.2"
 
 var (
 	config               string
@@ -41,7 +42,7 @@ func init() {
 	flag.IntVar(&resource, "resource", 0, "ID of a single resource to be exported")
 	flag.IntVar(&timeout, "timeout", 20, "client timeout")
 	flag.IntVar(&workers, "workers", 8, "number of concurrent workers")
-	flag.StringVar(&exportLoc, "export-location", ".", "location to export finding aids")
+	flag.StringVar(&exportLoc, "export-location", "", "location to export finding aids")
 	flag.BoolVar(&help, "help", false, "display the help message")
 	flag.BoolVar(&version, "version", false, "display the version of the tool and go-aspace library")
 	flag.BoolVar(&reformat, "reformat", false, "tab reformat the output file")
@@ -67,7 +68,7 @@ func printHelp() {
 	fmt.Println("  --workers          number of concurrent export workers to create				default `8`")
 	fmt.Println("  --validate         validate exported finding aids against ead2002 schema			default `false`")
 	fmt.Println("  --debug	     print debug messages							default `false`")
-	fmt.Println("  --version          print the version and version of client version\n")
+	fmt.Println("  --version          print the version and version of client version")
 }
 
 func main() {
@@ -120,6 +121,21 @@ func main() {
 	export.PrintAndLog("all mandatory options set", export.INFO)
 
 	//get the absolute path of the export location
+	if exportLoc == "" {
+		workDir = fmt.Sprintf("aspace-exports-%s", formattedTime)
+		if err = export.CreateWorkDirectory(workDir); err != nil {
+			export.PrintAndLog(err.Error(), export.FATAL)
+			err = export.CloseLogger()
+			if err != nil {
+				export.PrintAndLog(err.Error(), export.ERROR)
+			}
+			os.Exit(7)
+		}
+		export.PrintAndLog(fmt.Sprintf("working directory created at %s", workDir), export.INFO)
+	} else {
+		workDir = exportLoc
+	}
+
 	workDir, err = filepath.Abs(workDir)
 	if err != nil {
 		export.PrintAndLog(err.Error(), export.ERROR)
@@ -136,6 +152,7 @@ func main() {
 		}
 		os.Exit(3)
 	}
+
 	abs, _ := filepath.Abs(workDir)
 	export.PrintAndLog(fmt.Sprintf("%s exists and is a directory", abs), export.INFO)
 
@@ -175,19 +192,6 @@ func main() {
 		os.Exit(6)
 	}
 	export.PrintAndLog(fmt.Sprintf("%d resources returned from ArchivesSpace", len(resourceInfo)), export.INFO)
-
-	//create work directory
-	workDir = filepath.Join(workDir, fmt.Sprintf("aspace-exports-%s", formattedTime))
-	err = export.CreateWorkDirectory(workDir)
-	if err != nil {
-		export.PrintAndLog(err.Error(), export.FATAL)
-		err = export.CloseLogger()
-		if err != nil {
-			export.PrintAndLog(err.Error(), export.ERROR)
-		}
-		os.Exit(7)
-	}
-	export.PrintAndLog(fmt.Sprintf("working directory created at %s", workDir), export.INFO)
 
 	//Create the repository export and failure directories
 	err = export.CreateExportDirectories(workDir, repositoryMap, unpublishedResources)
@@ -240,11 +244,14 @@ func main() {
 	}
 
 	//exit
-	export.PrintAndLog("aspace-export process complete, exiting\n", export.INFO)
-	err = export.CloseLogger()
-	if err != nil {
-		export.PrintAndLog(err.Error(), export.ERROR)
+	export.PrintAndLog("aspace-export process complete, exiting", export.INFO)
+	if err := aspace_xport.CloseLogger(); err != nil {
+		panic(err)
 	}
+	if err := os.Rename("aspace-export.log", filepath.Join(workDir, "aspace-export.log")); err != nil {
+		export.PrintOnly(fmt.Sprintf("failed to move log file: %s", err.Error()), export.ERROR)
+	}
+	export.PrintOnly("aspace-export log file moved to work directory", export.INFO)
 
 	os.Exit(0)
 }

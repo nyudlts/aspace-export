@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/nyudlts/go-aspace"
 )
@@ -193,7 +194,7 @@ func Cleanup(workDir string) error {
 			} else {
 				defer f.Close()
 				_, err = f.Readdirnames(1)
-				if err == io.EOF {
+				if err == io.EOF && !strings.Contains(path, ".git") {
 					PrintAndLog(fmt.Sprintf("removing empty directory at: %s", path), INFO)
 					innerErr := os.Remove(path)
 					if innerErr != nil {
@@ -209,16 +210,8 @@ func Cleanup(workDir string) error {
 		return err
 	}
 
-	//move the logfile to the workdir
-	newLoc := filepath.Join(workDir, logfile)
-	err = os.Rename(logfile, newLoc)
-	if err != nil {
-		return err
-	}
-	PrintAndLog(fmt.Sprintf("moved log file to %s", newLoc), INFO)
-
 	//move the reportFile to the workdir
-	newLoc = filepath.Join(workDir, reportFile)
+	newLoc := filepath.Join(workDir, reportFile)
 	err = os.Rename(reportFile, newLoc)
 	if err != nil {
 		return err

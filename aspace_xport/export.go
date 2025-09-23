@@ -23,6 +23,12 @@ var (
 	resourceInfo  *[]ResourceInfo
 )
 
+const (
+	EAD ExportFormat = iota
+	MARC
+	UNSUPPORTED
+)
+
 type ExportOptions struct {
 	WorkDir              string
 	Format               ExportFormat
@@ -33,12 +39,6 @@ type ExportOptions struct {
 }
 
 type ExportFormat int
-
-const (
-	EAD ExportFormat = iota
-	MARC
-	UNSUPPORTED
-)
 
 func GetExportFormat(xportFormat string) (ExportFormat, error) {
 	switch xportFormat {
