@@ -50,6 +50,10 @@ func CreateLogger(dbug bool) error {
 		return err
 	}
 
+	//set the logger output to the log file
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetPrefix(fmt.Sprintf("%s ", logfile))
+
 	log.SetOutput(logger)
 	PrintAndLog(fmt.Sprintf("logging to %s", logfile), INFO)
 	debug = dbug
