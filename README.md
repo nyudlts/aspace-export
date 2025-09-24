@@ -26,10 +26,8 @@ Run
 ---
 $ aspace-export --config /path/to/go-aspace.yml --environment your-environment-key --format ead-or-marc [options] 
 <br><br>**notes:**
-* The underlying C xml lib, libxml2, will output voluminous, and not always helpful, info about xml errors to stderr, `2> /dev/null` ignores the output, you can redirect to a file by replacing /dev/null if you want to analyze the libxml2 output 
-* The program will create a directory hierarchy at the location set in the --export-location option named `aspace-export-[timestamp]. A subdirectory will be created for each repository that was exported, with the name of the repository's slug.
+* If no esport-location is set the program will create a directory hierarchy at the in the current working directory named: `aspace-export-[timestamp]. A subdirectory will be created for each repository that was exported, with the name of the repository's slug. If the export-location is set a suubdirectoy for each repository exported will be created in that directory.
 * Within each repository directory there will be an `exports` directory containing all exported finding aids and a `failures` directory for any file that fails to export from ArchivesSpace
-* If the `validate` option is set when the running the application any finding aids that fail validation will be written to a subdirectory named `invalid`.
 * A log file will be created named `aspace-export.log` which will be created in the root of output directory as defined in the --export-location option.
 * A Report with statistics will be created named `aspace-export-report.txt` will be created in the root of output directory as defined in the --export-location option.
 
