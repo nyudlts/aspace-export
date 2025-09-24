@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/nyudlts/aspace-export/aspace_xport"
 	export "github.com/nyudlts/aspace-export/aspace_xport"
 	"github.com/nyudlts/go-aspace"
 )
