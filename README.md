@@ -4,44 +4,48 @@ Command-line utility for bulk export, validation and reformatting of EAD finding
 
 Install From Binary
 -------------------
-1. Download the latest binary for Mac or linux https://github.com/nyudlts/aspace-export/releases/tag/v1.1.2
-3. Enter your ArchivesSpace credentials into the go-aspace.yml file included in the zip.
+1. Download the latest binary for Windows or linux https://github.com/nyudlts/aspace-export/releases/tag/v1.1.2
+2. Download the go-aspace.yml template from, [https://github.com/nyudlts/aspace-export/blob/main/go-aspace.yml](go-aspace.yml), and fill in your archivesspace credentials.
 
 Install With Go
 ---------------
-$ go install github.com/nyudlts/aspace-export
+If you have go on your system you can:
+1. Install using go
+<code>$ go install github.com/nyudlts/aspace-export</code>
 
-Build From Source
------------------
-$ make build<br>
-$ sudo make install //installs aspace-export to /usr/local/bin
+2. Download the go-aspace.yml template from, [https://github.com/nyudlts/aspace-export/blob/main/go-aspace.yml](go-aspace.yml), and fill in your archivesspace credentials.
 
-Package Distribution
------------------
-$ make package VERSION="release version" OS="osx,linux", this will build the app, zip the app, the sample go-aspace.yml file and the readme into a zip located in the /bin directory<br>
-example: $ make package VERSION="v1.0.0b" OS="linux", this will create /bin/linux/aspace-export-linux-v1.0.0b.zip
+Usage Examples
+--------------
+1. **export all repositories and resources to ead.xml**
+<code>$ aspace-export --config go-aspace.yml --environment local --format ead</code>
 
-Run
----
-$ aspace-export --config /path/to/go-aspace.yml --environment your-environment-key --format ead-or-marc [options] 
-<br><br>**notes:**
-* If no esport-location is set the program will create a directory hierarchy at the in the current working directory named: `aspace-export-[timestamp]. A subdirectory will be created for each repository that was exported, with the name of the repository's slug. If the export-location is set a suubdirectoy for each repository exported will be created in that directory.
+2. **export all resources from repository 2 as marc xml**
+<code>$ aspace-export --config go-aspace.yml --environment local --format marc--repository 2</code>
+
+3. **export a single resource to a specific directory**
+<code>$ aspace-export --config go-aspace.yml --environment local --format marc --repository 2 --resource 10 --export-location /home/aspace/exports</code>
+
+Notes
+-----
+* If the `export-location` is not set the program will create a directory hierarchy at the in the current working directory named: `aspace-export-[timestamp]. A subdirectory will be created for each repository that was exported, with the name of the repository's short name. If the export-location is set a subdirectory for each repository exported will be created in that directory.
 * Within each repository directory there will be an `exports` directory containing all exported finding aids and a `failures` directory for any file that fails to export from ArchivesSpace
 * A log file will be created named `aspace-export.log` which will be created in the root of output directory as defined in the --export-location option.
 * A Report with statistics will be created named `aspace-export-report.txt` will be created in the root of output directory as defined in the --export-location option.
 
-**example output structure**<br>
-/path/top/eexport-location/aspace-exports-[timestamp]<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aspace-exports.log<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aspace-exports-report.txt<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/tamwag<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/exports<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tam_001.xml<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tam_002.xml<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/invalid<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tam_003.xml<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/failures<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tam_004.xml<br>
+example output structure
+------------------------
+<pre>
+/path/to/export-location/
+        aspace-exports.log
+        aspace-exports-report.txt
+        /tamwag
+                /exports
+                        tam_001.xml
+                        tam_002.xml
+                /failures
+                        tam_004.xml
+</pre>
 
 Command-Line Arguments
 ----------------------
@@ -68,7 +72,7 @@ Exit Error Codes
 4. go-aspace library could not create an aspace-client 
 5. could not get a list of repositories from ArchivesSpace
 6. could not get a list of resources from ArchivesSpace
-7. could not create a aspace-export directory at    the location set at --export-location 
+7. could not create a aspace-export directory at the location set at --export-location 
 8. could not create subdirectories in the aspace-export 
 
 

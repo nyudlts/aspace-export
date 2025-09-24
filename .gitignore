@@ -3,3 +3,4 @@ aspace-exports/*
 aspace-export.log
 .idea/*
 testing/*
+bin/*
