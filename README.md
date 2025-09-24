@@ -17,13 +17,13 @@ If you have go on your system you can:
 
 Usage Examples
 --------------
-1. **export all repositories and resources to ead.xml**
+1. **export all repositories and resources to ead.xml**<br>
 <code>$ aspace-export --config go-aspace.yml --environment local --format ead</code>
 
-2. **export all resources from repository 2 as marc xml**
+2. **export all resources from repository 2 as marc xml**<br>
 <code>$ aspace-export --config go-aspace.yml --environment local --format marc--repository 2</code>
 
-3. **export a single resource to a specific directory**
+3. **export a single resource to a specific directory**<br>
 <code>$ aspace-export --config go-aspace.yml --environment local --format marc --repository 2 --resource 10 --export-location /home/aspace/exports</code>
 
 Notes
