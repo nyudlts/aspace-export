@@ -246,7 +246,8 @@ func main() {
 	//exit
 	export.PrintAndLog("aspace-export process complete, exiting", export.INFO)
 	if err := aspace_xport.CloseLogger(); err != nil {
-		panic(err)
+		export.PrintAndLog(fmt.Sprintf("failed to close logger: %s", err.Error()), export.ERROR)
+		os.Exit(11)
 	}
 	if err := os.Rename("aspace-export.log", filepath.Join(workDir, "aspace-export.log")); err != nil {
 		export.PrintOnly(fmt.Sprintf("failed to move log file: %s", err.Error()), export.ERROR)
