@@ -13,7 +13,6 @@ $ go install github.com/nyudlts/aspace-export
 
 Build From Source
 -----------------
-Pre-requisite: libxml2 and libxml2 development headers<br>
 $ make build<br>
 $ sudo make install //installs aspace-export to /usr/local/bin
 
