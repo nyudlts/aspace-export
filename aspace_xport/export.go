@@ -3,7 +3,6 @@ package aspace_xport
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"

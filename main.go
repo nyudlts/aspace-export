@@ -239,11 +239,11 @@ func main() {
 
 	export.PrintAndLog("closing logger", export.INFO)
 	if err := export.CloseLogger(); err != nil {
-		panic(err)
+		export.LogOnly(fmt.Sprintf("failed to close logger: %s", err.Error()), export.WARNING)
 	}
 
 	if err := export.DeleteEmptyDirectories(workDir); err != nil {
-		panic(err)
+		export.LogOnly(fmt.Sprintf("failed to delete empty directories: %s", err.Error()), export.WARNING)
 	}
 
 	if err := export.MoveLogfile(workDir); err != nil {
