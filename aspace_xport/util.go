@@ -158,25 +158,23 @@ func CreateExportDirectories(workDirPath string, repositoryMap map[string]int, u
 		exportDir := filepath.Join(repositoryDir, "exports")
 		unpublishedDir := filepath.Join(repositoryDir, "unpublished")
 
-		err := os.Mkdir(repositoryDir, 0755)
-		if err != nil {
+		if err := os.Mkdir(repositoryDir, 0755); err != nil {
 			return err
 		}
 		PrintAndLog(fmt.Sprintf("created repository directory %s", repositoryDir), INFO)
 
 		//create the repository export directory
-		err = os.Mkdir(exportDir, 0755)
-		if err != nil {
+		if err := os.Mkdir(exportDir, 0755); err != nil {
 			return err
 		}
 		PrintAndLog(fmt.Sprintf("created export directory %s", exportDir), INFO)
 
+		//create the unpublished directory if needed
 		if unpublishedResources == true {
-			err = os.Mkdir(unpublishedDir, 0755)
-			if err != nil {
+			if err := os.Mkdir(unpublishedDir, 0755); err != nil {
 				return err
 			}
-			PrintAndLog(fmt.Sprintf("created export directory %s", unpublishedDir), INFO)
+			PrintAndLog(fmt.Sprintf("created unpublished directory %s", unpublishedDir), INFO)
 		}
 	}
 
@@ -207,7 +205,7 @@ func Cleanup(workDir string) error {
 	})
 
 	if err != nil {
-		return err
+		PrintAndLog(err.Error(), ERROR)
 	}
 
 	//move the reportFile to the workdir
