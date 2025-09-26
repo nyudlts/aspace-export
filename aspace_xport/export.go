@@ -3,6 +3,7 @@ package aspace_xport
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -36,6 +37,7 @@ type ExportOptions struct {
 	UnpublishedResources bool
 	Workers              int
 	Reformat             bool
+	Timestamp            string
 }
 
 type ExportFormat int
@@ -112,11 +114,11 @@ func exportChunk(resourceInfoChunk []ResourceInfo, resultChannel chan []ExportRe
 		var res *aspace.Resource
 		res, err := client.GetResource(rInfo.RepoID, rInfo.ResourceID)
 		if err != nil {
-			PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve /repositories/%d,resources/%d retrying", workerID, rInfo.RepoID, rInfo.ResourceID), WARNING)
+			PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve /repositories/%d/resources/%d retrying, code: %s", workerID, rInfo.RepoID, rInfo.ResourceID, err.Error()), WARNING)
 			var err2 error
 			res, err2 = client.GetResource(rInfo.RepoID, rInfo.ResourceID)
 			if err2 != nil {
-				PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve resource /repositories/%d/resources/%d/ on 2nd attempt", workerID, rInfo.RepoID, rInfo.ResourceID), ERROR)
+				PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve resource /repositories/%d/resources/%d/ on 2nd attempt, code: %s", workerID, rInfo.RepoID, rInfo.ResourceID, err2), ERROR)
 				results = append(results, ExportResult{Status: "ERROR", URI: fmt.Sprintf("repositories/%d/resources/%d", rInfo.RepoID, rInfo.ResourceID), Error: err.Error()})
 				continue
 			}
@@ -145,12 +147,17 @@ func exportChunk(resourceInfoChunk []ResourceInfo, resultChannel chan []ExportRe
 }
 
 func exportMarc(info ResourceInfo, res aspace.Resource, workerID int) ExportResult {
-
+	var marcBytes []byte
+	var err error
 	//get the marc record
-	marcBytes, err := client.GetMARCAsByteArray(info.RepoID, info.ResourceID, exportOptions.UnpublishedNotes)
+	marcBytes, err = client.GetMARCAsByteArray(info.RepoID, info.ResourceID, exportOptions.UnpublishedNotes)
 	if err != nil {
-		PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve %s as MARCXML, error: %s", workerID, res.URI, err.Error()), ERROR)
-		return ExportResult{Status: "ERROR", URI: res.URI, Error: err.Error()}
+		PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve %s as marc xml, code: %s, retrying", workerID, res.URI, err.Error()), WARNING)
+		marcBytes, err = client.GetMARCAsByteArray(info.RepoID, info.ResourceID, exportOptions.UnpublishedNotes)
+		if err != nil {
+			PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve %s as marc xml on 2nd attempt, code: %s", workerID, res.URI, err.Error()), ERROR)
+			return ExportResult{Status: "ERROR", URI: res.URI, Error: err.Error()}
+		}
 	}
 
 	//create the output filename
@@ -282,7 +289,8 @@ func CreateReport() error {
 
 	executionTime = time.Since(startTime)
 
-	reportFile = filepath.Join("aspace-export-report.txt")
+	reportFile = filepath.Join(exportOptions.WorkDir, fmt.Sprintf("aspace-export-report-%s.txt", exportOptions.Timestamp))
+	log.Println(reportFile)
 	report, err := os.Create(reportFile)
 	if err != nil {
 		return err
@@ -290,10 +298,9 @@ func CreateReport() error {
 
 	defer report.Close()
 	writer := bufio.NewWriter(report)
-	fmt.Println()
 	msg := "ASPACE-EXPORT REPORT\n====================\n"
 	msg = msg + fmt.Sprintf("Execution Time: %v", executionTime)
-	msg = msg + fmt.Sprintf("\n%d Resources proccessed:\n", len(results))
+	msg = msg + fmt.Sprintf("\n%d Resources processed:\n", len(results))
 	msg = msg + fmt.Sprintf("  %d Successful exports\n", len(successes))
 	msg = msg + fmt.Sprintf("  %d Skipped resources\n", len(skipped))
 	msg = msg + fmt.Sprintf("  %d Exports with warnings\n", len(warnings))
@@ -313,7 +320,6 @@ func CreateReport() error {
 		}
 	}
 
-	fmt.Println(msg)
 	_, err = writer.WriteString(msg)
 	if err != nil {
 		return err

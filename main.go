@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/nyudlts/aspace-export/aspace_xport"
 	export "github.com/nyudlts/aspace-export/aspace_xport"
 	"github.com/nyudlts/go-aspace"
 )
@@ -98,7 +97,7 @@ func main() {
 	export.PrintOnly(fmt.Sprintf("aspace-export %s", appVersion), export.INFO)
 
 	//create logger
-	err := export.CreateLogger(debug)
+	err := export.CreateLogger(debug, fmt.Sprintf("aspace-export-%s.log", formattedTime))
 	if err != nil {
 		export.PrintAndLog(err.Error(), export.ERROR)
 		printHelp()
@@ -223,6 +222,7 @@ func main() {
 		UnpublishedResources: unpublishedResources,
 		Workers:              workers,
 		Reformat:             reformat,
+		Timestamp:            formattedTime,
 	}
 
 	//export resources
@@ -237,21 +237,27 @@ func main() {
 		os.Exit(10)
 	}
 
-	//clean up directories
-	err = export.Cleanup(workDir)
-	if err != nil {
-		export.PrintAndLog(err.Error(), export.WARNING)
-	}
-
-	//exit
-	export.PrintAndLog("aspace-export process complete, exiting", export.INFO)
-	if err := aspace_xport.CloseLogger(); err != nil {
+	export.PrintAndLog("closing logger", export.INFO)
+	if err := export.CloseLogger(); err != nil {
 		panic(err)
 	}
-	if err := os.Rename("aspace-export.log", filepath.Join(workDir, "aspace-export.log")); err != nil {
-		export.PrintOnly(fmt.Sprintf("failed to move log file: %s", err.Error()), export.ERROR)
+
+	if err := export.DeleteEmptyDirectories(workDir); err != nil {
+		panic(err)
 	}
-	export.PrintOnly("aspace-export log file moved to work directory", export.INFO)
+
+	if err := export.MoveLogfile(workDir); err != nil {
+		export.PrintOnly(fmt.Sprintf("failed to move log file: %s", err.Error()), export.ERROR)
+	} else {
+		export.PrintOnly("moved log to work directory", export.INFO)
+	}
+
+	export.PrintOnly("aspace export complete", export.INFO)
+
+	//print the report
+	if err := export.PrintReport(); err != nil {
+		export.PrintOnly(fmt.Sprintf("failed to print report file: %s", err.Error()), export.WARNING)
+	}
 
 	os.Exit(0)
 }
