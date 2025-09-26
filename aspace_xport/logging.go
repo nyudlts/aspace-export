@@ -18,7 +18,7 @@ const (
 
 var (
 	debug   = false
-	logfile = "aspace-export"
+	Logfile string
 	logger  *os.File
 )
 
@@ -39,23 +39,22 @@ func getLogLevelString(level LogLevel) string {
 	}
 }
 
-func CreateLogger(dbug bool) error {
+func CreateLogger(dbug bool, logfileName string) error {
 
 	//create a log file
-	logfile = logfile + ".log"
+	Logfile = logfileName
 
 	var err error
-	logger, err = os.Create(logfile)
+	logger, err = os.Create(Logfile)
 	if err != nil {
 		return err
 	}
 
 	//set the logger output to the log file
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	log.SetPrefix(fmt.Sprintf("%s ", logfile))
+	log.SetPrefix("aspace-export")
 
 	log.SetOutput(logger)
-	PrintAndLog(fmt.Sprintf("logging to %s", logfile), INFO)
+	PrintAndLog(fmt.Sprintf("logging to %s", Logfile), INFO)
 	debug = dbug
 	return nil
 }

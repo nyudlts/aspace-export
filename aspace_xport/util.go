@@ -3,10 +3,8 @@ package aspace_xport
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/nyudlts/go-aspace"
 )
@@ -158,65 +156,71 @@ func CreateExportDirectories(workDirPath string, repositoryMap map[string]int, u
 		exportDir := filepath.Join(repositoryDir, "exports")
 		unpublishedDir := filepath.Join(repositoryDir, "unpublished")
 
-		err := os.Mkdir(repositoryDir, 0755)
-		if err != nil {
+		if err := os.Mkdir(repositoryDir, 0755); err != nil {
 			return err
 		}
 		PrintAndLog(fmt.Sprintf("created repository directory %s", repositoryDir), INFO)
 
 		//create the repository export directory
-		err = os.Mkdir(exportDir, 0755)
-		if err != nil {
+		if err := os.Mkdir(exportDir, 0755); err != nil {
 			return err
 		}
 		PrintAndLog(fmt.Sprintf("created export directory %s", exportDir), INFO)
 
+		//create the unpublished directory if needed
 		if unpublishedResources == true {
-			err = os.Mkdir(unpublishedDir, 0755)
-			if err != nil {
+			if err := os.Mkdir(unpublishedDir, 0755); err != nil {
 				return err
 			}
-			PrintAndLog(fmt.Sprintf("created export directory %s", unpublishedDir), INFO)
+			PrintAndLog(fmt.Sprintf("created unpublished directory %s", unpublishedDir), INFO)
 		}
 	}
 
 	return nil
 }
 
-// run cleanup tasks
-func Cleanup(workDir string) error {
-	//remove any empty directories
-	err := filepath.Walk(workDir, func(path string, info os.FileInfo, err error) error {
+func MoveLogfile(workDir string) error {
+	newLogLoc := filepath.Join(workDir, Logfile)
+	if err := os.Rename(Logfile, newLogLoc); err != nil {
+		return fmt.Errorf("could not move log file: %s", err.Error())
+	}
+	PrintOnly(fmt.Sprintf("moved log file to %s", newLogLoc), INFO)
+	return nil
+}
+
+func DeleteEmptyDirectories(workDir string) error {
+	emptyDirectories := []string{}
+	if err := filepath.Walk(workDir, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
-			f, err := os.Open(path)
+			children, err := os.ReadDir(path)
 			if err != nil {
 				return err
-			} else {
-				defer f.Close()
-				_, err = f.Readdirnames(1)
-				if err == io.EOF && !strings.Contains(path, ".git") {
-					PrintAndLog(fmt.Sprintf("removing empty directory at: %s", path), INFO)
-					innerErr := os.Remove(path)
-					if innerErr != nil {
-						return innerErr
-					}
-				}
+			}
+			if len(children) == 0 {
+				emptyDirectories = append(emptyDirectories, path)
 			}
 		}
 		return nil
-	})
+	}); err != nil {
+		return err
+	}
+	if len(emptyDirectories) > 0 {
+		for _, dir := range emptyDirectories {
+			if err := os.Remove(dir); err != nil {
+				PrintOnly(fmt.Sprintf("failed to remove empty directory %s", dir), WARNING)
+			} else {
+				PrintOnly(fmt.Sprintf("removed empty directory %s", dir), INFO)
+			}
+		}
+	}
+	return nil
+}
 
+func PrintReport() error {
+	report, err := os.ReadFile(reportFile)
 	if err != nil {
 		return err
 	}
-
-	//move the reportFile to the workdir
-	newLoc := filepath.Join(workDir, reportFile)
-	err = os.Rename(reportFile, newLoc)
-	if err != nil {
-		return err
-	}
-	PrintAndLog(fmt.Sprintf("moved report file to %s", newLoc), INFO)
-
+	fmt.Println("\n" + string(report))
 	return nil
 }
