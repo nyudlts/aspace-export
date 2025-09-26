@@ -51,7 +51,6 @@ func CreateLogger(dbug bool, logfileName string) error {
 	}
 
 	//set the logger output to the log file
-	//log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.SetPrefix("aspace-export")
 
 	log.SetOutput(logger)
