@@ -290,7 +290,6 @@ func CreateReport() error {
 	executionTime = time.Since(startTime)
 
 	reportFile = filepath.Join(exportOptions.WorkDir, fmt.Sprintf("aspace-export-report-%s.txt", exportOptions.Timestamp))
-	log.Println(reportFile)
 	report, err := os.Create(reportFile)
 	if err != nil {
 		return err
