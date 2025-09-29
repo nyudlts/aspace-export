@@ -142,14 +142,12 @@ func main() {
 	}
 
 	//check that export location exists
-	err = export.CheckPath(workDir)
-	if err != nil {
-		export.PrintAndLog(err.Error(), export.FATAL)
-		err = export.CloseLogger()
-		if err != nil {
-			export.PrintAndLog(err.Error(), export.ERROR)
+	if _, err := os.Stat(workDir); os.IsNotExist(err) {
+		export.PrintAndLog(fmt.Sprintf("%s does not exist, creating", workDir), export.INFO)
+		if err = os.Mkdir(workDir, 0755); err != nil {
+			export.PrintAndLog(err.Error(), export.FATAL)
+			os.Exit(3)
 		}
-		os.Exit(3)
 	}
 
 	abs, _ := filepath.Abs(workDir)
