@@ -91,7 +91,7 @@ func main() {
 
 	//create timestamp for files
 	startTime = time.Now()
-	formattedTime = startTime.Format("20060102-050403")
+	formattedTime = startTime.Format("20060102-150403")
 
 	//starting the application
 	export.PrintOnly(fmt.Sprintf("aspace-export %s", appVersion), export.INFO)

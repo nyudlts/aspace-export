@@ -113,14 +113,9 @@ func exportChunk(resourceInfoChunk []ResourceInfo, resultChannel chan []ExportRe
 		var res *aspace.Resource
 		res, err := client.GetResource(rInfo.RepoID, rInfo.ResourceID)
 		if err != nil {
-			PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve /repositories/%d/resources/%d retrying, code: %s", workerID, rInfo.RepoID, rInfo.ResourceID, err.Error()), WARNING)
-			var err2 error
-			res, err2 = client.GetResource(rInfo.RepoID, rInfo.ResourceID)
-			if err2 != nil {
-				PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve resource /repositories/%d/resources/%d/ on 2nd attempt, code: %s", workerID, rInfo.RepoID, rInfo.ResourceID, err2), ERROR)
-				results = append(results, ExportResult{Status: "ERROR", URI: fmt.Sprintf("repositories/%d/resources/%d", rInfo.RepoID, rInfo.ResourceID), Error: err.Error()})
-				continue
-			}
+			PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve /repositories/%d/resources/%d, code: %s", workerID, rInfo.RepoID, rInfo.ResourceID, err.Error()), ERROR)
+			results = append(results, ExportResult{Status: "ERROR", URI: fmt.Sprintf("repositories/%d/resources/%d", rInfo.RepoID, rInfo.ResourceID), Error: err.Error()})
+			continue
 		}
 
 		//check if the resource is set to be published
