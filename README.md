@@ -28,10 +28,12 @@ Usage Examples
 
 Notes
 -----
-* If the `export-location` is not set the program will create a directory hierarchy at the in the current working directory named: `aspace-export-[timestamp]. A subdirectory will be created for each repository that was exported, with the name of the repository's short name. If the export-location is set a subdirectory for each repository exported will be created in that directory.
-* Within each repository directory there will be an `exports` directory containing all exported finding aids and a `failures` directory for any file that fails to export from ArchivesSpace
-* A log file will be created named `aspace-export.log` which will be created in the root of output directory as defined in the --export-location option.
-* A Report with statistics will be created named `aspace-export-report.txt` will be created in the root of output directory as defined in the --export-location option.
+* If the `export-location` is not set the program will create a directory hierarchy at the in the current working directory named: `aspace-export-[timestamp]. A subdirectory will be created for each repository that was exported, with the name of the repository's short name. 
+* If the `export-locatio`n is set a subdirectory for each repository exported will be created in that directory.
+* If the `export-location` is set but, does not exist, aspace-export will attempt to create it.
+* Within each repository directory there will be an `exports` directory containing all exported finding aids. If the --include-unpublished-resources flag is set a `unpublished` will be created in addition to the `exports` directory.
+* A log file will be created named `aspace-export-[timestamp].log` which will be created in the root of output directory as defined in the --export-location option.
+* A short summary report with statistics will be created named `aspace-export-report-[timestamp].txt` will be created in the root of output directory as defined in the --export-location option.
 
 example output structure
 ------------------------
