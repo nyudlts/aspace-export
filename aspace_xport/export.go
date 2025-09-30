@@ -113,14 +113,9 @@ func exportChunk(resourceInfoChunk []ResourceInfo, resultChannel chan []ExportRe
 		var res *aspace.Resource
 		res, err := client.GetResource(rInfo.RepoID, rInfo.ResourceID)
 		if err != nil {
-			PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve /repositories/%d/resources/%d retrying, code: %s", workerID, rInfo.RepoID, rInfo.ResourceID, err.Error()), WARNING)
-			var err2 error
-			res, err2 = client.GetResource(rInfo.RepoID, rInfo.ResourceID)
-			if err2 != nil {
-				PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve resource /repositories/%d/resources/%d/ on 2nd attempt, code: %s", workerID, rInfo.RepoID, rInfo.ResourceID, err2), ERROR)
-				results = append(results, ExportResult{Status: "ERROR", URI: fmt.Sprintf("repositories/%d/resources/%d", rInfo.RepoID, rInfo.ResourceID), Error: err.Error()})
-				continue
-			}
+			PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve /repositories/%d/resources/%d, code: %s", workerID, rInfo.RepoID, rInfo.ResourceID, err.Error()), ERROR)
+			results = append(results, ExportResult{Status: "ERROR", URI: fmt.Sprintf("repositories/%d/resources/%d", rInfo.RepoID, rInfo.ResourceID), Error: err.Error()})
+			continue
 		}
 
 		//check if the resource is set to be published
@@ -160,8 +155,16 @@ func exportMarc(info ResourceInfo, res aspace.Resource, workerID int) ExportResu
 	}
 
 	//create the output filename
-	marcFilename := strings.ToLower(fmt.Sprintf("%s_%s.xml", res.EADID, formattedTime))
+	var baseFilename string
+	if res.EADID == "" {
+		baseFilename = MergeIDs(res)
+		LogOnly(fmt.Sprintf("[worker %d] resource %s does not have an EADID, using resourceIDs for filename", workerID, res.URI), WARNING)
 
+	} else {
+		baseFilename = res.EADID
+	}
+
+	marcFilename := strings.ToLower(fmt.Sprintf("%s_%s.xml", baseFilename, formattedTime))
 	//set the location to write the marc record
 	var marcPath string
 	if exportOptions.UnpublishedResources == true && res.Publish == false {
@@ -186,7 +189,7 @@ func exportMarc(info ResourceInfo, res aspace.Resource, workerID int) ExportResu
 		LogOnly(fmt.Sprintf("[worker %d]  exported resource %s - %s with warning", workerID, res.URI, marcFilename), WARNING)
 		return ExportResult{Status: "WARNING", URI: res.URI, Error: warningType}
 	}
-	LogOnly(fmt.Sprintf("[worker %d] exported resource %s - %s", workerID, res.URI, res.EADID), INFO)
+	LogOnly(fmt.Sprintf("[worker %d] exported resource %s - %s", workerID, res.URI, baseFilename), INFO)
 	return ExportResult{Status: "SUCCESS", URI: res.URI, Error: ""}
 }
 

@@ -11,7 +11,7 @@ import (
 	"github.com/nyudlts/go-aspace"
 )
 
-const appVersion = "v1.1.3"
+const appVersion = "v1.1.4"
 
 var (
 	config               string
@@ -91,7 +91,7 @@ func main() {
 
 	//create timestamp for files
 	startTime = time.Now()
-	formattedTime = startTime.Format("20060102-050403")
+	formattedTime = startTime.Format("20060102-150403")
 
 	//starting the application
 	export.PrintOnly(fmt.Sprintf("aspace-export %s", appVersion), export.INFO)
