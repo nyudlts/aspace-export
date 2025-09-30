@@ -157,7 +157,7 @@ func exportMarc(info ResourceInfo, res aspace.Resource, workerID int) ExportResu
 	//create the output filename
 	var baseFilename string
 	if res.EADID == "" {
-		baseFilename = MergeIDs(res)
+		baseFilename = strings.ToLower(MergeIDs(res))
 		LogOnly(fmt.Sprintf("[worker %d] resource %s does not have an EADID, using resourceIDs for filename", workerID, res.URI), WARNING)
 
 	} else {
