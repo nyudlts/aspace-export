@@ -1,6 +1,7 @@
 aspace-export
-aspace-exports/*
-aspace-export.log
-.idea/*
-testing/*
-bin/*
+*.log
+.idea
+.vscode
+testing
+bin
+exports
