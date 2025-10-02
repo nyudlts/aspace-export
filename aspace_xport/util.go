@@ -183,9 +183,9 @@ func CreateExportDirectories(workDirPath string, repositoryMap map[string]int, u
 					return err
 				}
 				PrintAndLog(fmt.Sprintf("created unpublished directory %s", unpublishedDir), INFO)
+			} else {
+				PrintAndLog(fmt.Sprintf("unpublished directory %s already exists, skipping", unpublishedDir), INFO)
 			}
-		} else {
-			PrintAndLog(fmt.Sprintf("unpublished directory %s already exists, skipping", unpublishedDir), INFO)
 		}
 	}
 
