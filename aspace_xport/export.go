@@ -149,9 +149,7 @@ func exportMarc(info ResourceInfo, res aspace.Resource, workerID int) ExportResu
 	marcBytes, err = client.GetMARCAsByteArray(info.RepoID, info.ResourceID, exportOptions.UnpublishedNotes)
 	if err != nil {
 		errorTime := time.Since(startTime)
-		minutes := int(errorTime / time.Minute)
-		seconds := int((errorTime % time.Minute) / time.Second)
-		PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve %s as marc xml, code: %s, time: %d:%d", workerID, res.URI, err.Error(), minutes, seconds), ERROR)
+		PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve %s as marc xml, code: %s, time: %s", workerID, res.URI, err.Error(), errorTime.Truncate(time.Second).String()), ERROR)
 		return ExportResult{Status: "ERROR", URI: res.URI, Error: err.Error()}
 	}
 
