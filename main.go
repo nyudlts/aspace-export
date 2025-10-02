@@ -11,7 +11,7 @@ import (
 	"github.com/nyudlts/go-aspace"
 )
 
-const appVersion = "v1.1.4"
+const appVersion = "v1.1.5"
 
 var (
 	config               string
@@ -39,7 +39,6 @@ func init() {
 	flag.StringVar(&environment, "environment", "", "environment key of instance to export from")
 	flag.IntVar(&repository, "repository", 0, "ID of repository to be exported, leave blank to export all repositories")
 	flag.IntVar(&resource, "resource", 0, "ID of a single resource to be exported")
-	flag.IntVar(&timeout, "timeout", 20, "client timeout")
 	flag.IntVar(&workers, "workers", 8, "number of concurrent workers")
 	flag.StringVar(&exportLoc, "export-location", "", "location to export finding aids")
 	flag.BoolVar(&help, "help", false, "display the help message")
@@ -63,7 +62,6 @@ func printHelp() {
 	fmt.Println("  --reformat         tab reformat ead xml files							default `false`")
 	fmt.Println("  --repository       ID of the repository to be exported, `0` will export all repositories	default `0` ")
 	fmt.Println("  --resource         ID of the resource to be exported, `0` will export all resources		default `0` ")
-	fmt.Println("  --timeout          client timout in seconds							default `20`")
 	fmt.Println("  --workers          number of concurrent export workers to create				default `8`")
 	fmt.Println("  --validate         validate exported finding aids against ead2002 schema			default `false`")
 	fmt.Println("  --debug	     print debug messages							default `false`")

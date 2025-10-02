@@ -141,17 +141,16 @@ func exportChunk(resourceInfoChunk []ResourceInfo, resultChannel chan []ExportRe
 }
 
 func exportMarc(info ResourceInfo, res aspace.Resource, workerID int) ExportResult {
+	startTime := time.Now()
+
 	var marcBytes []byte
 	var err error
 	//get the marc record
 	marcBytes, err = client.GetMARCAsByteArray(info.RepoID, info.ResourceID, exportOptions.UnpublishedNotes)
 	if err != nil {
-		PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve %s as marc xml, code: %s, retrying", workerID, res.URI, err.Error()), WARNING)
-		marcBytes, err = client.GetMARCAsByteArray(info.RepoID, info.ResourceID, exportOptions.UnpublishedNotes)
-		if err != nil {
-			PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve %s as marc xml on 2nd attempt, code: %s", workerID, res.URI, err.Error()), ERROR)
-			return ExportResult{Status: "ERROR", URI: res.URI, Error: err.Error()}
-		}
+		errorTime := time.Since(startTime)
+		PrintAndLog(fmt.Sprintf("[worker %d] could not retrieve %s as marc xml, code: %s, time: %s", workerID, res.URI, err.Error(), errorTime.Truncate(time.Second).String()), ERROR)
+		return ExportResult{Status: "ERROR", URI: res.URI, Error: err.Error()}
 	}
 
 	//create the output filename

@@ -156,23 +156,35 @@ func CreateExportDirectories(workDirPath string, repositoryMap map[string]int, u
 		exportDir := filepath.Join(repositoryDir, "exports")
 		unpublishedDir := filepath.Join(repositoryDir, "unpublished")
 
-		if err := os.Mkdir(repositoryDir, 0755); err != nil {
-			return err
+		if _, err := os.Stat(repositoryDir); err != nil {
+			if err := os.Mkdir(repositoryDir, 0755); err != nil {
+				return err
+			}
+			PrintAndLog(fmt.Sprintf("created repository directory %s", repositoryDir), INFO)
+		} else {
+			PrintAndLog(fmt.Sprintf("repository directory %s already exists, skipping", repositoryDir), INFO)
 		}
-		PrintAndLog(fmt.Sprintf("created repository directory %s", repositoryDir), INFO)
 
 		//create the repository export directory
-		if err := os.Mkdir(exportDir, 0755); err != nil {
-			return err
+		if _, err := os.Stat(exportDir); err != nil {
+			if err := os.Mkdir(exportDir, 0755); err != nil {
+				return err
+			}
+			PrintAndLog(fmt.Sprintf("created export directory %s", exportDir), INFO)
+		} else {
+			PrintAndLog(fmt.Sprintf("exports directory %s already exists, skipping", exportDir), INFO)
 		}
-		PrintAndLog(fmt.Sprintf("created export directory %s", exportDir), INFO)
 
 		//create the unpublished directory if needed
 		if unpublishedResources == true {
-			if err := os.Mkdir(unpublishedDir, 0755); err != nil {
-				return err
+			if _, err := os.Stat(unpublishedDir); err != nil {
+				if err := os.Mkdir(unpublishedDir, 0755); err != nil {
+					return err
+				}
+				PrintAndLog(fmt.Sprintf("created unpublished directory %s", unpublishedDir), INFO)
+			} else {
+				PrintAndLog(fmt.Sprintf("unpublished directory %s already exists, skipping", unpublishedDir), INFO)
 			}
-			PrintAndLog(fmt.Sprintf("created unpublished directory %s", unpublishedDir), INFO)
 		}
 	}
 
